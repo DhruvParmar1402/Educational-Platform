@@ -4,10 +4,12 @@ import com.Dhruv.EducationalPlatform.DTO.CourseDTO;
 import com.Dhruv.EducationalPlatform.Entity.CourseEntity;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,15 +20,14 @@ public class CourseRepository {
     @Autowired
     private DynamoDBMapper mapper;
 
-    private ModelMapper modelMapper=new ModelMapper();
+    private ModelMapper modelMapper = new ModelMapper();
 
 
     public void save(CourseDTO courseEntity) {
         mapper.save(modelMapper.map(courseEntity, CourseEntity.class));
     }
 
-    public List<CourseDTO> getAll(String id)
-    {
+    public List<CourseDTO> getAll(String id) {
         Map<String, AttributeValue> eav = new HashMap<>();
         eav.put(":instructorId", new AttributeValue().withS(id));
 
@@ -41,7 +42,15 @@ public class CourseRepository {
     }
 
     public CourseDTO findCourseById(String id) {
-       return modelMapper.map(mapper.load(CourseEntity.class,id), CourseDTO.class);
+        return modelMapper.map(mapper.load(CourseEntity.class, id), CourseDTO.class);
+    }
+
+    public void deleteCourse(CourseEntity course) {
+        mapper.delete(course);
+    }
+
+    public List<CourseDTO> getAllCourses() {
+        return mapper.scan(CourseEntity.class, new DynamoDBScanExpression()).stream().map((entity) -> modelMapper.map(entity, CourseDTO.class)).toList();
     }
 
 }

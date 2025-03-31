@@ -14,7 +14,6 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class AWSCredentials {
 
-
     @Value("${aws.ACCESS_KEY}")
     private String accessKey;
 

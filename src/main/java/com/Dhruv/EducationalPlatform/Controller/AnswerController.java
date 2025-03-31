@@ -1,6 +1,7 @@
 package com.Dhruv.EducationalPlatform.Controller;
 
 import com.Dhruv.EducationalPlatform.DTO.AnswerDTO;
+import com.Dhruv.EducationalPlatform.Exception.EntityNotFound;
 import com.Dhruv.EducationalPlatform.Util.ResponseHandler;
 import com.Dhruv.EducationalPlatform.Groups.AnswerGroup;
 import com.Dhruv.EducationalPlatform.Service.AnswerService;
@@ -30,7 +31,13 @@ public class AnswerController {
             response=new ResponseHandler<>(null,messageSource.getMessage("answer.saved.success") , HttpStatus.OK,true);
             answerService.save(answerDTO);
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        } catch (Exception e) {
+        }
+        catch (EntityNotFound e)
+        {
+            response=new ResponseHandler<>(null,messageSource.getMessage("answer.save.entityNotFound") , HttpStatus.NOT_FOUND,false);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        catch (Exception e) {
             response=new ResponseHandler<>(null,messageSource.getMessage("answer.saved.fail") , HttpStatus.INTERNAL_SERVER_ERROR,false);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }

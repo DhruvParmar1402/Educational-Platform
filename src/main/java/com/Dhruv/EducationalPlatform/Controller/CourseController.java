@@ -1,6 +1,8 @@
 package com.Dhruv.EducationalPlatform.Controller;
 
 import com.Dhruv.EducationalPlatform.DTO.CourseDTO;
+import com.Dhruv.EducationalPlatform.Exception.EntityNotFound;
+import com.Dhruv.EducationalPlatform.Util.PaginationResponse;
 import com.Dhruv.EducationalPlatform.Util.ResponseHandler;
 import com.Dhruv.EducationalPlatform.Groups.CourseGroup;
 import com.Dhruv.EducationalPlatform.Service.CourseService;
@@ -33,11 +35,14 @@ public class CourseController {
             courseService.save(courseDTO);
             response=new ResponseHandler<>(null,messageSource.getMessage("course.saved.success"), HttpStatus.OK,true);
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        } catch (Exception e) {
+        } catch (EntityNotFound e) {
+            response=new ResponseHandler<>(null,messageSource.getMessage("course.save.entityNotFound"), HttpStatus.NOT_FOUND,true);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        catch (Exception e) {
             response=new ResponseHandler<>(null,messageSource.getMessage("course.saved.fail") , HttpStatus.INTERNAL_SERVER_ERROR,false);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
-
     }
 
     @GetMapping
@@ -52,4 +57,25 @@ public class CourseController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+    @PreAuthorize("hasRole('INSTRUCTOR')")
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateCourse(@PathVariable String id, @Validated(CourseGroup.class) @RequestBody CourseDTO courseDTO) throws Exception {
+        courseService.updateCourse(id, courseDTO);
+        return ResponseEntity.ok(new ResponseHandler<>(null, "Course updated successfully", HttpStatus.OK, true));
+    }
+
+    @PreAuthorize("hasRole('INSTRUCTOR')")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteCourse(@PathVariable String id) throws Exception {
+        courseService.deleteCourse(id);
+        return ResponseEntity.ok(new ResponseHandler<>(null, "Course deleted successfully", HttpStatus.OK, true));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<?> getAllCourses() {
+        return ResponseEntity.ok(new ResponseHandler<>(courseService.getAllCourses(), "All courses retrieved successfully", HttpStatus.OK, true));
+    }
+
+
 }

@@ -30,5 +30,9 @@ public class UserDTO {
     @Pattern(regexp = "^(STUDENT|INSTRUCTOR)$", message = "{user.role.invalid}" ,groups = {RegisterGroup.class})
     private String role;
 
-    private Date createdAt=new Date();
+    @NotBlank(groups = {RegisterGroup.class})
+    @Pattern(regexp = "^(m|f)$", message = "{user.role.invalid}" ,groups = {RegisterGroup.class})
+    private String gender;
+
+    private Date createdAt;
 }

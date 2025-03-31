@@ -22,5 +22,5 @@ public class DiscussionDTO {
     @NotBlank(groups = DiscussionDTO.class, message = "{discussion.message.blank}")
     private String message;
 
-    private Date createdAt=new Date();
+    private Date createdAt;
 }
