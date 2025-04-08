@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -23,49 +24,56 @@ public class DiscussionController {
     @Autowired
     private MessageSourceImpl messageSource;
 
+
     @PostMapping
-    public ResponseEntity<?> addDiscussion(@Validated(DiscussionGroup.class) @RequestBody DiscussionDTO discussion) throws Exception {
+    public ResponseEntity<?> addDiscussion(@Validated(DiscussionGroup.class) @RequestBody DiscussionDTO discussion) {
         ResponseHandler<String> response;
         try {
             discussionService.save(discussion);
-            response=new ResponseHandler<>(null,messageSource.getMessage("discussion.saved.success"), HttpStatus.OK,true);
+            response = new ResponseHandler<>(null, messageSource.getMessage("discussion.saved.success"), HttpStatus.OK, true);
             return ResponseEntity.status(HttpStatus.OK).body(response);
-       }
-        catch (EntityNotFound e)
-        {
-            response=new ResponseHandler<>(null,messageSource.getMessage("discussion.save.entityNotFound"), HttpStatus.NOT_FOUND,true);
+        } catch (EntityNotFound e) {
+            response = new ResponseHandler<>(null, e.getMessage(), HttpStatus.NOT_FOUND, false);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception e) {
+            response = new ResponseHandler<>(null, e.getMessage(), HttpStatus.BAD_REQUEST, false);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
-        catch (Exception e) {
-            response=new ResponseHandler<>(null,messageSource.getMessage("discussion.saved.fail") , HttpStatus.INTERNAL_SERVER_ERROR,false);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-       }
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getDiscussionByCourseId(@PathVariable String id) throws Exception
-    {
-        ResponseHandler<List<DiscussionDTO> > response;
+    public ResponseEntity<?> getDiscussionByCourseId(@PathVariable String id){
+        ResponseHandler<List<DiscussionDTO>> response;
         try {
-            response=new ResponseHandler<>(discussionService.findByCourseId(id),messageSource.getMessage("discussion.found.success"), HttpStatus.OK,true);
+            List<DiscussionDTO> list=discussionService.findByCourseId(id);
+            response = new ResponseHandler<>(list, messageSource.getMessage("discussion.found.success"), HttpStatus.OK, true);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
-        catch (Exception e)
-        {
-            response=new ResponseHandler<>(null,messageSource.getMessage("discussion.found.fail") , HttpStatus.INTERNAL_SERVER_ERROR,false);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        catch (EntityNotFound e) {
+            response = new ResponseHandler<>(null, e.getMessage(), HttpStatus.NOT_FOUND, false);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        catch (Exception e) {
+            response = new ResponseHandler<>(null, e.getMessage(), HttpStatus.BAD_REQUEST, false);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
 
     @GetMapping
-    public ResponseEntity<?> getDiscussionByUserId() throws Exception {
-        ResponseHandler<List<DiscussionDTO> > response;
+    public ResponseEntity<?> getDiscussionByUserId() {
+        ResponseHandler<List<DiscussionDTO>> response;
         try {
-            response=new ResponseHandler<>(discussionService.findByUserId(),messageSource.getMessage("discussion.found.success"), HttpStatus.OK,true);
+            List<DiscussionDTO> list=discussionService.findByUserId();
+            response = new ResponseHandler<>(list, messageSource.getMessage("discussion.found.success"), HttpStatus.OK, true);
             return ResponseEntity.status(HttpStatus.OK).body(response);
-       } catch (Exception e) {
-            response=new ResponseHandler<>(null,messageSource.getMessage("discussion.found.fail") , HttpStatus.INTERNAL_SERVER_ERROR,false);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+        catch (EntityNotFound e) {
+            response = new ResponseHandler<>(null, e.getMessage(), HttpStatus.NOT_FOUND, false);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        catch (Exception e) {
+            response = new ResponseHandler<>(null, e.getMessage() , HttpStatus.BAD_REQUEST, false);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
 }

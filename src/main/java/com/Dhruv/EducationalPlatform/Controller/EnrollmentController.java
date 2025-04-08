@@ -28,32 +28,37 @@ public class EnrollmentController {
 
     @PreAuthorize("hasRole('STUDENT')")
     @PostMapping
-    public ResponseEntity<?> enroll(@Validated(EnrollmentGroup.class) @RequestBody EnrollmentDTO enrollmentDTO) throws Exception {
+    public ResponseEntity<?> enroll(@Validated(EnrollmentGroup.class) @RequestBody EnrollmentDTO enrollmentDTO) {
         ResponseHandler<String> response;
         try {
             enrollmentService.save(enrollmentDTO);
             response=new ResponseHandler<>(null,messageSource.getMessage("enrollment.saved.success"), HttpStatus.OK,true);
             return ResponseEntity.status(HttpStatus.OK).body(response);
-
         } catch (EntityNotFound e) {
-            response=new ResponseHandler<>(null,messageSource.getMessage("enrollment.saved.entityNotFound"), HttpStatus.NOT_FOUND,true);
+            response=new ResponseHandler<>(null,e.getMessage(), HttpStatus.NOT_FOUND,true);
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         }
         catch (Exception e) {
-            response=new ResponseHandler<>(null,messageSource.getMessage("enrollment.saved.fail") , HttpStatus.INTERNAL_SERVER_ERROR,false);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            response=new ResponseHandler<>(null,e.getMessage() , HttpStatus.BAD_REQUEST,false);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllEnrolled() throws Exception {
+    public ResponseEntity<?> getAllEnrolled() {
         ResponseHandler<List<CourseDTO>> response;
         try {
-            response=new ResponseHandler<>(enrollmentService.findById(),messageSource.getMessage("enrollment.found.success"), HttpStatus.OK,true);
+            List<CourseDTO> list=enrollmentService.findById();
+            response=new ResponseHandler<>(list,messageSource.getMessage("enrollment.found.success"), HttpStatus.OK,true);
             return ResponseEntity.status(HttpStatus.OK).body(response);
-        } catch (Exception e) {
-            response=new ResponseHandler<>(null,messageSource.getMessage("enrollment.found.fail") , HttpStatus.INTERNAL_SERVER_ERROR,false);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+        catch (EntityNotFound e) {
+            response=new ResponseHandler<>(null,e.getMessage(), HttpStatus.NOT_FOUND,true);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        }
+        catch (Exception e) {
+            response=new ResponseHandler<>(null,e.getMessage() , HttpStatus.BAD_REQUEST,false);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
 }

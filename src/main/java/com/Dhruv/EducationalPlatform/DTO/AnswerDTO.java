@@ -24,5 +24,5 @@ public class AnswerDTO {
     @NotNull(groups = AnswerGroup.class,message = "{answer.message.null}")
     private String message;
 
-    private Date date;
+    private Date date=new Date();
 }

@@ -53,7 +53,7 @@ public class DiscussionService {
     public DiscussionDTO findDiscussionById(String id) throws EntityNotFound {
         DiscussionDTO discussionDTO = discussionRepository.findById(id);
         if (discussionDTO == null) {
-            throw new EntityNotFound("discussion.found.fail");
+            throw new EntityNotFound(messageSource.getMessage("discussion.found.fail"));
         }
         return discussionDTO;
     }

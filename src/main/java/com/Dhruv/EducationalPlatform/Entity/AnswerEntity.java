@@ -32,5 +32,5 @@ public class AnswerEntity {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
     @DynamoDBTypeConvertedTimestamp
     @DynamoDBAttribute(attributeName = "createdAt")
-    private Date createdAt=new Date();
+    private Date createdAt;
 }

@@ -1,4 +1,4 @@
-package com.Dhruv.EducationalPlatform.Service;
+package com.Dhruv.EducationalPlatform.Util;
 
 import com.Dhruv.EducationalPlatform.DTO.UserDTO;
 import com.Dhruv.EducationalPlatform.Repository.UserRepository;

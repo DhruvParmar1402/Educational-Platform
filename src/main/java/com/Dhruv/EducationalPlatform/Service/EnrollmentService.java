@@ -34,7 +34,7 @@ public class EnrollmentService {
 
 
     public void save(EnrollmentDTO enrollmentDTO) throws EntityNotFound {
-        UserDTO user =userService.findUserById(authenticatedUserProvider.getUserId()) ;
+        UserDTO user =userService.findUserById(authenticatedUserProvider.getUserId());
         courseService.findCourseById(enrollmentDTO.getCourseId());
         enrollmentDTO.setUserId(user.getId());
         enrollmentRepository.save(enrollmentDTO);
@@ -42,7 +42,6 @@ public class EnrollmentService {
 
     public List<CourseDTO> findById() throws EntityNotFound {
         UserDTO user = userService.findUserById(authenticatedUserProvider.getUserId());
-
 
         List<EnrollmentDTO> enrollmentDTOS = enrollmentRepository.findAll(user.getId());
         List<CourseDTO> courseDTOS = new ArrayList<>();

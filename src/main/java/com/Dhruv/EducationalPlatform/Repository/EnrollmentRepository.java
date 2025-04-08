@@ -36,6 +36,7 @@ public class EnrollmentRepository {
                 .withConsistentRead(false)
                 .withScanIndexForward(false);
 
-        return mapper.query(EnrollmentEntity.class, queryExpression).stream().map((entity)->modelMapper.map(entity, EnrollmentDTO.class)).toList();
+        List<EnrollmentEntity>list= mapper.query(EnrollmentEntity.class, queryExpression);
+        return list==null?null:list.stream().map((entity)->modelMapper.map(entity, EnrollmentDTO.class)).toList();
     }
 }

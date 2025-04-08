@@ -4,6 +4,7 @@ import com.Dhruv.EducationalPlatform.DTO.CourseDTO;
 import com.Dhruv.EducationalPlatform.DTO.UserDTO;
 import com.Dhruv.EducationalPlatform.Entity.CourseEntity;
 import com.Dhruv.EducationalPlatform.Exception.EntityNotFound;
+import com.Dhruv.EducationalPlatform.Exception.UnAuthorized;
 import com.Dhruv.EducationalPlatform.Repository.CourseRepository;
 import com.Dhruv.EducationalPlatform.Util.AuthenticatedUserProvider;
 import com.Dhruv.EducationalPlatform.Util.MessageSourceImpl;
@@ -46,14 +47,17 @@ public class CourseService {
 
     public List<CourseDTO> findAll() {
         String userId = authenticatedUserProvider.getUserId();
-        return courseRepository.getAll(userId).stream().map((course) -> mapper.map(course, CourseDTO.class)).toList();
+        List<CourseDTO>list=courseRepository.getAll(userId);
+        return list;
     }
 
     public CourseDTO findCourseById(String id) throws EntityNotFound {
         CourseDTO course = courseRepository.findCourseById(id);
+
         if (course == null) {
             throw new EntityNotFound(messageSource.getMessage("course.found.failure"));
         }
+
         return course;
     }
 
@@ -70,11 +74,13 @@ public class CourseService {
         courseRepository.save(courseDTO);
     }
 
-    public void deleteCourse(String id) throws EntityNotFound {
+    public void deleteCourse(String id) throws EntityNotFound, UnAuthorized {
         CourseDTO existingCourse = findCourseById(id);
         String currentUserId = authenticatedUserProvider.getUserId();
+
         if (existingCourse == null || !existingCourse.getInstructorId().equals(currentUserId)) {
-            throw new RuntimeException("You can only delete your own courses.");
+            throw new UnAuthorized("You can only delete your own courses.");
+
         }
         findCourseById(id);
         courseRepository.deleteCourse(mapper.map(existingCourse, CourseEntity.class));

@@ -1,5 +1,6 @@
 package com.Dhruv.EducationalPlatform.Entity;
 
+import com.Dhruv.EducationalPlatform.Util.Role;
 import com.amazonaws.services.dynamodbv2.datamodeling.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
@@ -31,9 +32,9 @@ public class UserEntity {
     @DynamoDBAttribute(attributeName = "email")
     private String email;
 
+    @DynamoDBTypeConvertedEnum
     @DynamoDBIndexHashKey(globalSecondaryIndexName = "role-email-index",attributeName = "role")
-    @DynamoDBAttribute(attributeName = "role")
-    private String role;
+    private Role role;
 
     @DynamoDBAttribute(attributeName = "gender")
     private String gender;
@@ -41,5 +42,5 @@ public class UserEntity {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
     @DynamoDBTypeConvertedTimestamp
     @DynamoDBAttribute(attributeName = "createdAt")
-    private Date createdAt=new Date();
+    private Date createdAt;
 }

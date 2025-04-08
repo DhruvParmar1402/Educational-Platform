@@ -1,7 +1,7 @@
 package com.Dhruv.EducationalPlatform.Config;
 
 import com.Dhruv.EducationalPlatform.Filter.JwtFilter;
-import com.Dhruv.EducationalPlatform.Service.UserDetailsProvider;
+import com.Dhruv.EducationalPlatform.Util.UserDetailsProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

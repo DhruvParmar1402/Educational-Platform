@@ -23,5 +23,5 @@ public class CourseDTO {
 
     private String instructorId;
 
-    private Date createdAt;
+    private Date createdAt=new Date();
 }

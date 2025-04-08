@@ -33,6 +33,6 @@ public class DiscussionEntity {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     @DynamoDBTypeConvertedTimestamp
     @DynamoDBAttribute(attributeName = "createdAt")
-    private Date createdAt=new Date();
+    private Date createdAt;
 }
 

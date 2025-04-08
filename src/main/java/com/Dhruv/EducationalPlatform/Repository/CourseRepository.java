@@ -5,6 +5,7 @@ import com.Dhruv.EducationalPlatform.Entity.CourseEntity;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBMapper;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBScanExpression;
+import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedScanList;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,11 +39,14 @@ public class CourseRepository {
                 .withConsistentRead(false)
                 .withScanIndexForward(false);
 
-        return mapper.query(CourseEntity.class, queryExpression).stream().map((courseEntity -> modelMapper.map(courseEntity, CourseDTO.class))).toList();
+        List<CourseEntity>list=mapper.query(CourseEntity.class, queryExpression);
+
+        return list==null?null:list.stream().map((courseEntity -> modelMapper.map(courseEntity, CourseDTO.class))).toList();
     }
 
     public CourseDTO findCourseById(String id) {
-        return modelMapper.map(mapper.load(CourseEntity.class, id), CourseDTO.class);
+        CourseEntity course=mapper.load(CourseEntity.class, id);
+        return course==null?null:modelMapper.map(course, CourseDTO.class);
     }
 
     public void deleteCourse(CourseEntity course) {
@@ -50,7 +54,8 @@ public class CourseRepository {
     }
 
     public List<CourseDTO> getAllCourses() {
-        return mapper.scan(CourseEntity.class, new DynamoDBScanExpression()).stream().map((entity) -> modelMapper.map(entity, CourseDTO.class)).toList();
+        PaginatedScanList<CourseEntity> courses=mapper.scan(CourseEntity.class, new DynamoDBScanExpression());
+        return courses==null?null:courses.stream().map((entity) -> modelMapper.map(entity, CourseDTO.class)).toList();
     }
 
 }
