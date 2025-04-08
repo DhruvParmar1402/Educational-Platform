@@ -2,6 +2,7 @@ package com.Dhruv.EducationalPlatform.Controller;
 
 import com.Dhruv.EducationalPlatform.DTO.DiscussionDTO;
 import com.Dhruv.EducationalPlatform.Exception.EntityNotFound;
+import com.Dhruv.EducationalPlatform.Util.PaginationResponse;
 import com.Dhruv.EducationalPlatform.Util.ResponseHandler;
 import com.Dhruv.EducationalPlatform.Groups.DiscussionGroup;
 import com.Dhruv.EducationalPlatform.Service.DiscussionService;
@@ -42,11 +43,11 @@ public class DiscussionController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<?> getDiscussionByCourseId(@PathVariable String id){
-        ResponseHandler<List<DiscussionDTO>> response;
+    public ResponseEntity<?> getDiscussionByCourseId(@PathVariable String id,@RequestParam(defaultValue = "5") int pageSize, @RequestParam(required = false) String lastEvaluatedKey){
+        ResponseHandler<PaginationResponse> response;
         try {
-            List<DiscussionDTO> list=discussionService.findByCourseId(id);
-            response = new ResponseHandler<>(list, messageSource.getMessage("discussion.found.success"), HttpStatus.OK, true);
+            PaginationResponse page=discussionService.findByCourseId(id,pageSize,lastEvaluatedKey);
+            response = new ResponseHandler<>(page, messageSource.getMessage("discussion.found.success"), HttpStatus.OK, true);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
         catch (EntityNotFound e) {
@@ -60,11 +61,11 @@ public class DiscussionController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getDiscussionByUserId() {
-        ResponseHandler<List<DiscussionDTO>> response;
+    public ResponseEntity<?> getDiscussionByUserId(@RequestParam(defaultValue = "5") int pageSize, @RequestParam(required = false) String lastEvaluatedKey) {
+        ResponseHandler<PaginationResponse> response;
         try {
-            List<DiscussionDTO> list=discussionService.findByUserId();
-            response = new ResponseHandler<>(list, messageSource.getMessage("discussion.found.success"), HttpStatus.OK, true);
+            PaginationResponse page=discussionService.findByUserId(pageSize,lastEvaluatedKey);
+            response = new ResponseHandler<>(page, messageSource.getMessage("discussion.found.success"), HttpStatus.OK, true);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
         catch (EntityNotFound e) {

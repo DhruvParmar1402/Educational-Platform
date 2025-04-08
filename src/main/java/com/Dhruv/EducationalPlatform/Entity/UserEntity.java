@@ -39,8 +39,8 @@ public class UserEntity {
     @DynamoDBAttribute(attributeName = "gender")
     private String gender;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
-    @DynamoDBTypeConvertedTimestamp
+//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
+//    @DynamoDBTypeConvertedTimestamp
     @DynamoDBAttribute(attributeName = "createdAt")
     private Date createdAt;
 }

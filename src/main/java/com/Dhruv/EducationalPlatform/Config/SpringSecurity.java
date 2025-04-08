@@ -35,6 +35,7 @@ public class SpringSecurity {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.POST, "/course/**").hasRole("INSTRUCTOR")
+                        .requestMatchers(HttpMethod.PUT, "/course/**").hasRole("INSTRUCTOR")
                         .requestMatchers("/enroll/**").hasRole("STUDENT")
                         .anyRequest().permitAll()
                 )

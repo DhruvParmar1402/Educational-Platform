@@ -2,6 +2,7 @@ package com.Dhruv.EducationalPlatform.Controller;
 
 import com.Dhruv.EducationalPlatform.DTO.AnswerDTO;
 import com.Dhruv.EducationalPlatform.Exception.EntityNotFound;
+import com.Dhruv.EducationalPlatform.Util.PaginationResponse;
 import com.Dhruv.EducationalPlatform.Util.ResponseHandler;
 import com.Dhruv.EducationalPlatform.Groups.AnswerGroup;
 import com.Dhruv.EducationalPlatform.Service.AnswerService;
@@ -42,11 +43,11 @@ public class AnswerController {
     }
 
     @GetMapping("/{discussionId}")
-    public ResponseEntity<?> findByDiscussionId(@PathVariable String discussionId) {
-        ResponseHandler<List<AnswerDTO>> response;
+    public ResponseEntity<?> findByDiscussionId(@PathVariable String discussionId,@RequestParam(defaultValue = "5") int pageSize, @RequestParam(required = false) String lastEvaluatedKey) {
+        ResponseHandler<PaginationResponse> response;
         try {
-            List<AnswerDTO> list = answerService.findByDiscussionId(discussionId);
-            response = new ResponseHandler<>(list, messageSource.getMessage("answer.found.success"), HttpStatus.OK, true);
+            PaginationResponse answers=answerService.findByDiscussionId(discussionId,pageSize,lastEvaluatedKey);
+            response = new ResponseHandler<>(answers, messageSource.getMessage("answer.found.success"), HttpStatus.OK, true);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
             response = new ResponseHandler<>(null, e.getMessage(), HttpStatus.BAD_REQUEST, false);
@@ -55,14 +56,15 @@ public class AnswerController {
     }
 
     @GetMapping
-    public ResponseEntity<?> findByUserId() {
-        ResponseHandler<List<AnswerDTO>> response;
+    public ResponseEntity<?> findByUserId(@RequestParam(defaultValue = "5") int pageSize, @RequestParam(required = false) String lastEvaluatedKey) {
+        ResponseHandler<PaginationResponse> response;
         try {
-            response = new ResponseHandler<>(answerService.findByUserId(), messageSource.getMessage("answer.found.success"), HttpStatus.OK, true);
+            PaginationResponse answers=answerService.findByUserId(pageSize,lastEvaluatedKey);
+            response = new ResponseHandler<>(answers, messageSource.getMessage("answer.found.success"), HttpStatus.OK, true);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
-            response = new ResponseHandler<>(null, e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR, false);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+            response = new ResponseHandler<>(null, e.getMessage(), HttpStatus.BAD_REQUEST, false);
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         }
     }
 }

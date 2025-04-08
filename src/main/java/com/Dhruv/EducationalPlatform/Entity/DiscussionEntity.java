@@ -30,8 +30,8 @@ public class DiscussionEntity {
     @DynamoDBAttribute(attributeName = "message")
     private String message;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
-    @DynamoDBTypeConvertedTimestamp
+//    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
+//    @DynamoDBTypeConvertedTimestamp
     @DynamoDBAttribute(attributeName = "createdAt")
     private Date createdAt;
 }

@@ -3,6 +3,7 @@ package com.Dhruv.EducationalPlatform.Controller;
 import com.Dhruv.EducationalPlatform.DTO.CourseDTO;
 import com.Dhruv.EducationalPlatform.Exception.EntityNotFound;
 import com.Dhruv.EducationalPlatform.Exception.UnAuthorized;
+import com.Dhruv.EducationalPlatform.Util.PaginationResponse;
 import com.Dhruv.EducationalPlatform.Util.ResponseHandler;
 import com.Dhruv.EducationalPlatform.Groups.CourseGroup;
 import com.Dhruv.EducationalPlatform.Service.CourseService;
@@ -49,11 +50,11 @@ public class CourseController {
 
     @PreAuthorize("hasRole('INSTRUCTOR')")
     @GetMapping
-    public ResponseEntity<?> getAllCreated()
+    public ResponseEntity<?> getAllCreated(@RequestParam(defaultValue = "5") int pageSize, @RequestParam(required = false) String lastEvaluatedKey)
     {
-        ResponseHandler<List<CourseDTO>> response;
+        ResponseHandler<PaginationResponse> response;
         try {
-            List<CourseDTO> courseList=courseService.findAll();
+            PaginationResponse courseList=courseService.findAll(pageSize,lastEvaluatedKey);
             response=new ResponseHandler<>(courseList,messageSource.getMessage("course.found.success"), HttpStatus.OK,true);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         } catch (Exception e) {
@@ -111,12 +112,12 @@ public class CourseController {
     }
 
     @GetMapping("/all")
-    public ResponseEntity<?> viewAllCourses() {
-        ResponseHandler<List<CourseDTO>> response;
+    public ResponseEntity<?> viewAllCourses(@RequestParam(defaultValue = "5") int pageSize, @RequestParam(required = false) String lastEvaluatedKey) {
+        ResponseHandler<PaginationResponse> response;
 
         try {
-            List<CourseDTO> list=courseService.getAllCourses();
-            response=new ResponseHandler(list,messageSource.getMessage("course.fetched.success"),HttpStatus.OK,true);
+            PaginationResponse paginationResponse=courseService.getAllCourses(pageSize,lastEvaluatedKey);
+            response=new ResponseHandler(paginationResponse,messageSource.getMessage("course.fetched.success"),HttpStatus.OK,true);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
         catch (Exception e)

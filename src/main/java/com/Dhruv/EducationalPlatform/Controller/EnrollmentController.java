@@ -1,8 +1,9 @@
 package com.Dhruv.EducationalPlatform.Controller;
 
-import com.Dhruv.EducationalPlatform.DTO.CourseDTO;
+
 import com.Dhruv.EducationalPlatform.DTO.EnrollmentDTO;
 import com.Dhruv.EducationalPlatform.Exception.EntityNotFound;
+import com.Dhruv.EducationalPlatform.Util.PaginationResponse;
 import com.Dhruv.EducationalPlatform.Util.ResponseHandler;
 import com.Dhruv.EducationalPlatform.Groups.EnrollmentGroup;
 import com.Dhruv.EducationalPlatform.Service.EnrollmentService;
@@ -14,7 +15,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 
 @RestController
 @RequestMapping("/enroll")
@@ -45,11 +45,11 @@ public class EnrollmentController {
     }
 
     @GetMapping
-    public ResponseEntity<?> getAllEnrolled() {
-        ResponseHandler<List<CourseDTO>> response;
+    public ResponseEntity<?> getAllEnrolled(@RequestParam(defaultValue = "5") int pageSize, @RequestParam(required = false) String lastEvaluatedKey) {
+        ResponseHandler<PaginationResponse> response;
         try {
-            List<CourseDTO> list=enrollmentService.findById();
-            response=new ResponseHandler<>(list,messageSource.getMessage("enrollment.found.success"), HttpStatus.OK,true);
+            PaginationResponse page=enrollmentService.findById(pageSize,lastEvaluatedKey);
+            response=new ResponseHandler<>(page,messageSource.getMessage("enrollment.found.success"), HttpStatus.OK,true);
             return ResponseEntity.status(HttpStatus.OK).body(response);
         }
         catch (EntityNotFound e) {

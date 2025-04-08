@@ -26,33 +26,60 @@ public class DiscussionRepository {
         mapper.save(modelMapper.map(discussion, DiscussionEntity.class));
     }
 
-    public List<DiscussionDTO> findByCourseId(String courseId) {
+    public List<DiscussionDTO> findByCourseId(String courseId,int pageSize,String lastEvaluatedKey) {
+        Map<String, AttributeValue> startKey=new HashMap<>();
+
+        if(lastEvaluatedKey!=null)
+        {
+            startKey.put("courseId",new AttributeValue().withS(courseId));
+            startKey.put("id",new AttributeValue().withS(lastEvaluatedKey));
+        }
+
         Map<String, AttributeValue> eav = new HashMap<>();
         eav.put(":courseId", new AttributeValue().withS(courseId));
 
         DynamoDBQueryExpression<DiscussionEntity> queryExpression = new DynamoDBQueryExpression<DiscussionEntity>()
-                .withIndexName("courseId-index")
+                .withIndexName("courseId-id-index")
                 .withKeyConditionExpression("courseId=:courseId")
                 .withExpressionAttributeValues(eav)
+                .withLimit(pageSize)
                 .withConsistentRead(false)
                 .withScanIndexForward(false);
 
-        List<DiscussionEntity> list = mapper.query(DiscussionEntity.class, queryExpression);
+        if(!startKey.isEmpty())
+        {
+            queryExpression.withExclusiveStartKey(startKey);
+        }
+
+        List<DiscussionEntity> list = mapper.queryPage(DiscussionEntity.class, queryExpression).getResults();
         return list == null ? null : list.stream().map((entity) -> modelMapper.map(entity, DiscussionDTO.class)).toList();
     }
 
-    public List<DiscussionDTO> findByUserId(String userId) {
+    public List<DiscussionDTO> findByUserId(String userId,int pageSize,String lastEvaluatedKey) {
+        Map<String ,AttributeValue> startKey=new HashMap<>();
+        if(lastEvaluatedKey!=null)
+        {
+            startKey.put("userId",new AttributeValue().withS(userId));
+            startKey.put("id",new AttributeValue().withS(lastEvaluatedKey));
+        }
+
         Map<String, AttributeValue> eav = new HashMap<>();
         eav.put(":userId", new AttributeValue().withS(userId));
 
         DynamoDBQueryExpression<DiscussionEntity> queryExpression = new DynamoDBQueryExpression<DiscussionEntity>()
-                .withIndexName("userId-index")
+                .withIndexName("userId-id-index")
                 .withKeyConditionExpression("userId =:userId")
                 .withExpressionAttributeValues(eav)
+                .withLimit(pageSize)
                 .withConsistentRead(false)
                 .withScanIndexForward(false);
 
-        List<DiscussionEntity> list = mapper.query(DiscussionEntity.class, queryExpression);
+        if(!startKey.isEmpty())
+        {
+            queryExpression.withExclusiveStartKey(startKey);
+        }
+
+        List<DiscussionEntity> list = mapper.queryPage(DiscussionEntity.class, queryExpression).getResults();
         return list == null ? null : list.stream().map((entity) -> modelMapper.map(entity, DiscussionDTO.class)).toList();
     }
 

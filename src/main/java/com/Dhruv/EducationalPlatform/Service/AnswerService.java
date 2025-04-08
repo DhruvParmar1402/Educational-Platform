@@ -1,10 +1,13 @@
 package com.Dhruv.EducationalPlatform.Service;
 
 import com.Dhruv.EducationalPlatform.DTO.AnswerDTO;
+import com.Dhruv.EducationalPlatform.DTO.PaginatedResponse;
 import com.Dhruv.EducationalPlatform.DTO.UserDTO;
+import com.Dhruv.EducationalPlatform.Entity.AnswerEntity;
 import com.Dhruv.EducationalPlatform.Exception.EntityNotFound;
 import com.Dhruv.EducationalPlatform.Repository.AnswerRepository;
 import com.Dhruv.EducationalPlatform.Util.AuthenticatedUserProvider;
+import com.Dhruv.EducationalPlatform.Util.PaginationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +29,6 @@ public class AnswerService {
 
 
     public void save(AnswerDTO answerDTO) throws EntityNotFound {
-
         UserDTO user = userService.findUserById(authenticatedUserProvider.getUserId());
         discussionService.findDiscussionById(answerDTO.getDiscussionId());
 
@@ -34,12 +36,29 @@ public class AnswerService {
         answerRepository.save(answerDTO);
     }
 
-    public List<AnswerDTO> findByDiscussionId(String discussionId) {
-        return answerRepository.findByDiscussionId(discussionId);
+    public PaginationResponse findByDiscussionId(String discussionId,int pageSize,String lastEvaluatedKey) {
+        List<AnswerDTO> answers=answerRepository.findByDiscussionId(discussionId,pageSize,lastEvaluatedKey);
+        boolean hasMore= !(answers.size() < pageSize);
+        if(hasMore)
+        {
+            lastEvaluatedKey=answers.getLast().getId();
+        }
+        PaginationResponse paginationResponse=new PaginationResponse(answers,lastEvaluatedKey,pageSize,hasMore);
+        return paginationResponse;
+
     }
 
-    public List<AnswerDTO> findByUserId() {
+    public PaginationResponse findByUserId(int pageSize,String lastEvaluatedKey) {
         String userId = authenticatedUserProvider.getUserId();
-        return answerRepository.findByUserId(userId);
+        List<AnswerDTO> answers= answerRepository.findByUserId(userId,pageSize,lastEvaluatedKey);
+        boolean hasMore=!(answers.size() < pageSize);
+
+        if(hasMore)
+        {
+            lastEvaluatedKey=answers.getLast().getId();
+        }
+
+        PaginationResponse paginationResponse=new PaginationResponse(answers,lastEvaluatedKey,pageSize,hasMore);
+        return paginationResponse;
     }
 }

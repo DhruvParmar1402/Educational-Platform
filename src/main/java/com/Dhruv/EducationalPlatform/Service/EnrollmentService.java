@@ -8,6 +8,7 @@ import com.Dhruv.EducationalPlatform.Exception.EntityNotFound;
 import com.Dhruv.EducationalPlatform.Repository.EnrollmentRepository;
 import com.Dhruv.EducationalPlatform.Util.AuthenticatedUserProvider;
 import com.Dhruv.EducationalPlatform.Util.JwtUtil;
+import com.Dhruv.EducationalPlatform.Util.PaginationResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,18 +41,18 @@ public class EnrollmentService {
         enrollmentRepository.save(enrollmentDTO);
     }
 
-    public List<CourseDTO> findById() throws EntityNotFound {
+    public PaginationResponse findById(int pageSize,String lastEvaluatedKey) throws EntityNotFound {
         UserDTO user = userService.findUserById(authenticatedUserProvider.getUserId());
 
-        List<EnrollmentDTO> enrollmentDTOS = enrollmentRepository.findAll(user.getId());
-        List<CourseDTO> courseDTOS = new ArrayList<>();
+        List<EnrollmentDTO> list = enrollmentRepository.findAll(user.getId(),pageSize,lastEvaluatedKey);
 
-        for (EnrollmentDTO dto : enrollmentDTOS) {
-            CourseDTO course = courseService.findCourseById(dto.getCourseId());
-            courseDTOS.add(course);
+        boolean hasMore=!(list.size()<pageSize);
+        if(hasMore)
+        {
+            lastEvaluatedKey=list.getLast().getCourseId();
         }
-
-        return courseDTOS;
+        PaginationResponse paginationResponse=new PaginationResponse(list,lastEvaluatedKey,pageSize,hasMore);
+        return paginationResponse;
     }
 
 }

@@ -45,10 +45,16 @@ public class CourseService {
         courseRepository.save(courseDTO);
     }
 
-    public List<CourseDTO> findAll() {
+    public PaginationResponse findAll(int pageSize,String lastEvaluatedKey) {
         String userId = authenticatedUserProvider.getUserId();
-        List<CourseDTO>list=courseRepository.getAll(userId);
-        return list;
+        List<CourseDTO>list=courseRepository.getAll(userId,pageSize,lastEvaluatedKey);
+        boolean hasMore=!(list.size()<pageSize);
+        if(hasMore)
+        {
+            lastEvaluatedKey=list.getLast().getId();
+        }
+        PaginationResponse page=new PaginationResponse(list,lastEvaluatedKey,pageSize,hasMore);
+        return page;
     }
 
     public CourseDTO findCourseById(String id) throws EntityNotFound {
@@ -86,8 +92,16 @@ public class CourseService {
         courseRepository.deleteCourse(mapper.map(existingCourse, CourseEntity.class));
     }
 
-    public List<CourseDTO> getAllCourses() {
-        return courseRepository.getAllCourses();
+    public PaginationResponse getAllCourses(int pageSize,String lastEvaluatedKey) {
+        List<CourseDTO> list=courseRepository.getAllCourses(pageSize,lastEvaluatedKey);
+
+        boolean hasMore=!(list.size()<pageSize);
+        if(hasMore)
+        {
+            lastEvaluatedKey=list.getLast().getId();
+        }
+        PaginationResponse paginationResponse=new PaginationResponse(list,lastEvaluatedKey,pageSize,hasMore);
+        return paginationResponse;
     }
 
 

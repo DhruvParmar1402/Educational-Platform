@@ -26,17 +26,31 @@ public class EnrollmentRepository {
         mapper.save(modelMapper.map(enrollmentDTO,EnrollmentEntity.class));
     }
 
-    public List<EnrollmentDTO> findAll (String userId) {
+    public List<EnrollmentDTO> findAll (String userId,int pageSize,String lastEvaluatedKey) {
         Map<String, AttributeValue> eav = new HashMap<>();
         eav.put(":userId",new AttributeValue().withS(userId));
+
+        Map<String , AttributeValue> startKey=new HashMap<>();
+
+        if(lastEvaluatedKey!=null)
+        {
+            startKey.put("userId",new AttributeValue().withS(userId));
+            startKey.put("courseId",new AttributeValue().withS(lastEvaluatedKey));
+        }
 
         DynamoDBQueryExpression<EnrollmentEntity> queryExpression = new DynamoDBQueryExpression<EnrollmentEntity>()
                 .withKeyConditionExpression("userId=:userId")
                 .withExpressionAttributeValues(eav)
+                .withLimit(pageSize)
                 .withConsistentRead(false)
                 .withScanIndexForward(false);
 
-        List<EnrollmentEntity>list= mapper.query(EnrollmentEntity.class, queryExpression);
+        if(!startKey.isEmpty())
+        {
+            queryExpression.withExclusiveStartKey(startKey);
+        }
+
+        List<EnrollmentEntity>list= mapper.queryPage(EnrollmentEntity.class, queryExpression).getResults();
         return list==null?null:list.stream().map((entity)->modelMapper.map(entity, EnrollmentDTO.class)).toList();
     }
 }

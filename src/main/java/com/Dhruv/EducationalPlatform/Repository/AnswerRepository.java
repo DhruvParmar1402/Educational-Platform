@@ -7,6 +7,7 @@ import com.amazonaws.services.dynamodbv2.datamodeling.DynamoDBQueryExpression;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedQueryList;
 import com.amazonaws.services.dynamodbv2.datamodeling.PaginatedScanList;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
+import com.amazonaws.services.dynamodbv2.xspec.L;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -28,34 +29,62 @@ public class AnswerRepository {
         mapper.save(modelMapper.map(answerDTO, AnswerEntity.class));
     }
 
-    public List<AnswerDTO> findByDiscussionId(String discussionId) {
+    public List<AnswerDTO> findByDiscussionId(String discussionId,int pageSize,String lastEvaluatedKey) {
+        Map<String , AttributeValue> startKey=new HashMap<>();
+
+        if(lastEvaluatedKey!=null)
+        {
+            startKey.put("discussionId",new AttributeValue().withS(discussionId));
+            startKey.put("id",new AttributeValue().withS(lastEvaluatedKey));
+        }
+
         Map<String, AttributeValue> eav = new HashMap<>();
         eav.put(":discussionId", new AttributeValue().withS(discussionId));
 
         DynamoDBQueryExpression<AnswerEntity> queryExpression = new DynamoDBQueryExpression<AnswerEntity>()
-                .withIndexName("discussionId-index")
-                .withKeyConditionExpression("discussionId=:discussionId")
+                .withIndexName("discussionId-id-index")
+                .withKeyConditionExpression("discussionId = :discussionId")
                 .withExpressionAttributeValues(eav)
+                .withLimit(pageSize)
                 .withConsistentRead(false)
                 .withScanIndexForward(false);
 
-        PaginatedQueryList<AnswerEntity> list = mapper.query(AnswerEntity.class, queryExpression);
+        if(!startKey.isEmpty())
+        {
+            queryExpression.withExclusiveStartKey(startKey);
+        }
+
+        List<AnswerEntity> list = mapper.queryPage(AnswerEntity.class, queryExpression).getResults();
 
         return list == null ? null : list.stream().map((entity) -> modelMapper.map(entity, AnswerDTO.class)).toList();
     }
 
-    public List<AnswerDTO> findByUserId(String userId) {
+    public List<AnswerDTO> findByUserId(String userId,int pageSize,String lastEvaluatedKey) {
+        Map<String ,AttributeValue> startKey=new HashMap<>();
+
+        if(lastEvaluatedKey!=null)
+        {
+            startKey.put("userId",new AttributeValue().withS(userId));
+            startKey.put("id",new AttributeValue().withS(lastEvaluatedKey));
+        }
+
         Map<String, AttributeValue> eav = new HashMap<>();
         eav.put(":userId", new AttributeValue().withS(userId));
 
         DynamoDBQueryExpression<AnswerEntity> queryExpression = new DynamoDBQueryExpression<AnswerEntity>()
-                .withIndexName("userId-index")
+                .withIndexName("userId-id-index")
                 .withKeyConditionExpression("userId=:userId")
                 .withExpressionAttributeValues(eav)
+                .withLimit(pageSize)
                 .withConsistentRead(false)
                 .withScanIndexForward(false);
 
-        PaginatedQueryList<AnswerEntity> list = mapper.query(AnswerEntity.class, queryExpression);
+        if(!startKey.isEmpty())
+        {
+            queryExpression.withExclusiveStartKey(startKey);
+        }
+
+        List<AnswerEntity> list = mapper.queryPage(AnswerEntity.class, queryExpression).getResults();
 
         return list == null ? null : list.stream().map((entity) -> modelMapper.map(entity, AnswerDTO.class)).toList();
     }

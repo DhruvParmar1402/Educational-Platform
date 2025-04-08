@@ -7,6 +7,7 @@ import com.Dhruv.EducationalPlatform.Exception.EntityNotFound;
 import com.Dhruv.EducationalPlatform.Repository.DiscussionRepository;
 import com.Dhruv.EducationalPlatform.Util.AuthenticatedUserProvider;
 import com.Dhruv.EducationalPlatform.Util.MessageSourceImpl;
+import com.Dhruv.EducationalPlatform.Util.PaginationResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -39,15 +40,29 @@ public class DiscussionService {
         discussionRepository.save(discussion);
     }
 
-    public List<DiscussionDTO> findByCourseId(String courseId) throws EntityNotFound {
+    public PaginationResponse findByCourseId(String courseId,int pageSize,String lastEvaluatedKey) throws EntityNotFound {
         CourseDTO course = courseService.findCourseById(courseId);
-        return discussionRepository.findByCourseId(course.getId());
+        List<DiscussionDTO> list=discussionRepository.findByCourseId(course.getId(),pageSize,lastEvaluatedKey);
+        boolean hasMore=!(list.size()<pageSize);
+        if(hasMore)
+        {
+            lastEvaluatedKey=list.getLast().getId();
+        }
+        return new PaginationResponse(list,lastEvaluatedKey,pageSize,hasMore);
     }
 
 
-    public List<DiscussionDTO> findByUserId() throws EntityNotFound {
+    public PaginationResponse findByUserId(int pageSize, String lastEvaluatedKey) throws EntityNotFound {
         UserDTO user = userService.findUserById(authenticatedUserProvider.getUserId());
-        return discussionRepository.findByUserId(user.getId());
+        List<DiscussionDTO> list=discussionRepository.findByUserId(user.getId(),pageSize,lastEvaluatedKey);
+        boolean hasMore=!(list.size()<pageSize);
+        if(hasMore)
+        {
+            lastEvaluatedKey=list.getLast().getId();
+        }
+        PaginationResponse page=new PaginationResponse(list,lastEvaluatedKey,pageSize,hasMore);
+
+        return page;
     }
 
     public DiscussionDTO findDiscussionById(String id) throws EntityNotFound {

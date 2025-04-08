@@ -29,8 +29,6 @@ public class CourseEntity {
     @DynamoDBAttribute(attributeName = "instructorId")
     private String instructorId;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd hh:mm:ss")
-    @DynamoDBTypeConvertedTimestamp
     @DynamoDBAttribute(attributeName = "createdAt")
     private Date createdAt;
 }
